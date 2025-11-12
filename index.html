@@ -10,17 +10,52 @@
     .visitor { margin-top: 20px; font-size: 1.2em; }
   </style>
 
-   <script type='text/javascript' id='rsyswpsdk' src='https://api.pushio.com/webpush/sdk/wpIndex_min.js' wpconfig = '{"appserviceKey":"BE_QYsSpUjlPflz66YjLtxez2s8Gl2PC91Ox_QHuHSWUOZLrYbrBmhZiuYBbLLLYGw-YsKpoq7Q0WdY74kfNIqY=","apiKey":"ABEOzqUHvCM5ly5OJxkX7p6YY","accountToken":"ABElKaqpK-3l_zDeOp-XArlkg","appver":"0.0.0","apiHost":"https://abr16c0-webpush.oraclersys.com","lazy":false}'></script>
+  <!-- Load Responsys Web Push SDK -->
+  <script 
+    type="text/javascript" 
+    id="rsyswpsdk" 
+    src="https://api.pushio.com/webpush/sdk/wpIndex_min.js" 
+    wpconfig='{
+      "appserviceKey":"BE_QYsSpUjlPflz66YjLtxez2s8Gl2PC91Ox_QHuHSWUOZLrYbrBmhZiuYBbLLLYGw-YsKpoq7Q0WdY74kfNIqY=",
+      "apiKey":"ABEOzqUHvCM5ly5OJxkX7p6YY",
+      "accountToken":"ABElKaqpK-3l_zDeOp-XArlkg",
+      "appver":"0.0.0",
+      "apiHost":"https://abr16c0-webpush.oraclersys.com",
+      "lazy":false
+    }'>
+  </script>
 </head>
 <body>
 
   <h1>Responsys Web Push Demo</h1>
   <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
 
-  <!--  Load Responsys Web Push SDK -->
- 
+  <script>
+    // Register your Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/responsys-test-2/webpush-service-worker.js')  // <- use your actual file
+        .then(function(registration) {
+          console.log('Service Worker registered:', registration);
 
+          // Wait for the SDK to be ready
+          window.addEventListener('load', function() {
+            if (window.webPushManagerAPI && typeof webPushManagerAPI.getVisitorId === 'function') {
+              webPushManagerAPI.getVisitorId().then(function(visitorId) {
+                console.log('Visitor ID:', visitorId);
+                document.getElementById('visitorIdDisplay').textContent = visitorId;
+              }).catch(function(err) {
+                console.error('Failed to get visitor ID:', err);
+              });
+            }
+          });
 
+        }).catch(function(error) {
+          console.error('Service Worker registration failed:', error);
+        });
+    } else {
+      console.warn('Service workers are not supported in this browser.');
+    }
+  </script>
 
 </body>
 </html>
