@@ -30,46 +30,6 @@
   <h1>Responsys Web Push Demo</h1>
   <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
 
-  <script>
-    async function initWebPush() {
-      try {
-        // 1️⃣ Register Service Worker
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.register('webpush-service-worker.js');
-          console.log('✅ Service Worker registered:', registration);
-        } else {
-          console.warn('Service workers are not supported in this browser.');
-          return;
-        }
-
-        // 2️⃣ Wait for Responsys SDK
-        if (window.webPushManagerAPI && typeof webPushManagerAPI.getVisitorId === 'function') {
-          const visitorId = await webPushManagerAPI.getVisitorId();
-          console.log('Visitor ID:', visitorId);
-
-          // Display it on screen
-          document.getElementById('visitorIdDisplay').textContent = visitorId;
-
-          // 3️⃣ Store Visitor ID persistently (localStorage)
-          localStorage.setItem('responsysVisitorId', visitorId);
-        } else {
-          console.warn('webPushManagerAPI not ready yet. Retrying in 1s...');
-          setTimeout(initWebPush, 1000); // retry after SDK loads
-        }
-      } catch (err) {
-        console.error('❌ Web Push initialization failed:', err);
-      }
-    }
-
-    // 🔹 Restore existing visitor ID immediately (optional)
-    const savedId = localStorage.getItem('responsysVisitorId');
-    if (savedId) {
-      document.getElementById('visitorIdDisplay').textContent = savedId + ' (cached)';
-    }
-
-    // 🔹 Initialize after page load
-    window.addEventListener('load', initWebPush);
-  </script>
-
+  
 </body>
 </html>
