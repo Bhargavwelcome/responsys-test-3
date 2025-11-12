@@ -11,19 +11,25 @@
   </style>
 
   <!-- Responsys Web Push SDK -->
-  <script 
-    type="text/javascript" 
-    id="rsyswpsdk" 
-    src="https://api.pushio.com/webpush/sdk/wpIndex_min.js" 
-    wpconfig='{
-      "appserviceKey":"BE_QYsSpUjlPflz66YjLtxez2s8Gl2PC91Ox_QHuHSWUOZLrYbrBmhZiuYBbLLLYGw-YsKpoq7Q0WdY74kfNIqY=",
-      "apiKey":"ABEOzqUHvCM5ly5OJxkX7p6YY",
-      "accountToken":"ABElKaqpK-3l_zDeOp-XArlkg",
-      "appver":"1.0.0",
-      "apiHost":"https://abr16c0-webpush.oraclersys.com",
-      "lazy":false
-    }'>
-  </script>
+  <script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const s = document.createElement('script');
+      s.id = 'rsyswpsdk';
+      s.src = 'https://api.pushio.com/webpush/sdk/wpIndex_min.js';
+      s.setAttribute('wpconfig', JSON.stringify({
+        appserviceKey: "BE_QYsSpUjlPflz66YjLtxez2s8Gl2PC91Ox_QHuHSWUOZLrYbrBmhZiuYBbLLLYGw-YsKpoq7Q0WdY74kfNIqY=",
+        apiKey: "ABEOzqUHvCM5ly5OJxkX7p6YY",
+        accountToken: "ABElKaqpK-3l_zDeOp-XArlkg",
+        appver: "0.0.0",
+        apiHost: "https://abr16c0-webpush.oraclersys.com",
+        lazy: false
+      }));
+      document.body.appendChild(s);
+    }, 1000); // wait 1 second for SW activation
+  });
+</script>
+
 </head>
 <body>
 
