@@ -1,85 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Responsys Web Push Demo</title>
+
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      background-color: #f8fafc; 
-      color: #333; 
-      text-align: center; 
-      padding: 40px; 
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8fafc;
+      color: #333;
+      text-align: center;
+      padding: 40px;
     }
     h1 { color: #0078d7; }
     .visitor { margin-top: 20px; font-size: 1.2em; }
     input, button { padding: 8px; margin: 10px; font-size: 1em; }
   </style>
 
-  <!-- Responsys Web Push SDK (loaded dynamically) -->
-  <script type='text/javascript' id='rsyswpsdk' src='https://api.pushio.com/webpush/sdk/wpIndex_min.js' wpconfig = '{"appserviceKey":"BE_QYsSpUjlPflz66YjLtxez2s8Gl2PC91Ox_QHuHSWUOZLrYbrBmhZiuYBbLLLYGw-YsKpoq7Q0WdY74kfNIqY=","apiKey":"ABEOzqUHvCM5ly5OJxkX7p6YY","accountToken":"ABElKaqpK-3l_zDeOp-XArlkg","appver":"0.0.0","apiHost":"https://abr16c0-webpush.oraclersys.com","lazy":false}'></script>
+  <!-- Responsys Web Push SDK -->
+  <script 
+    id="rsyswpsdk"
+    src="https://api.pushio.com/webpush/sdk/wpIndex_min.js"
+    wpconfig='{
+      "appserviceKey": "BE_QYsSpUjlPflz66YjLtxez2s8Gl2PC91Ox_QHuHSWUOZLrYbrBmhZiuYBbLLLYGw-YsKpoq7Q0WdY74kfNIqY=",
+      "apiKey": "ABEOzqUHvCM5ly5OJxkX7p6YY",
+      "accountToken": "ABElKaqpK-3l_zDeOp-XArlkg",
+      "appver": "0.0.0",
+      "apiHost": "https://abr16c0-webpush.oraclersys.com",
+      "lazy": false
+    }'>
+  </script>
 </head>
+
 <body>
 
   <h1>Responsys Web Push Demo</h1>
 
-  <!-- 👇 Customer ID Input -->
   <input type="text" id="customerId" placeholder="Enter Customer ID" />
   <button id="registerBtn">Register for Web Push</button>
 
-  <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
+  <p class="visitor" id="visitorIdDisplay">
+    Visitor ID will appear here after registration.
+  </p>
 
-  <script> 
-    // When button is clicked, register visitor and attach Customer ID
-    document.getElementById("registerBtn").addEventListener("click", function () {
+  <script>
+    //  Register the service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log(" Service Worker registered:", reg.scope))
+        .catch(err => console.error(" Service Worker registration failed:", err));
+    }
+
+    //  Handle registration button click
+    document.getElementById("registerBtn").addEventListener("click", async function () {
       const customerId = document.getElementById("customerId").value.trim();
-
       if (!customerId) {
         alert("Please enter a valid Customer ID!");
         return;
       }
 
-      console.log("🧑 Customer ID:", customerId);
+      console.log(" Customer ID:", customerId);
 
-      // Wait until the SDK is loaded
-      const checkSDK = setInterval(() => {
-        if (typeof orawp !== "undefined") {
-          clearInterval(checkSDK);
+      // Wait until SDK is ready
+      await new Promise(resolve => {
+        const check = setInterval(() => {
+          if (typeof orawp !== "undefined") {
+            clearInterval(check);
+            resolve();
+          }
+        }, 300);
+      });
 
-          // Register for Web Push
-          orawp.registerForWebPush()
-            .then(() => {
-              const visitorId = orawp.getVisitorId();
-              console.log("✅ Visitor ID:", visitorId);
+      try {
+        await orawp.registerForWebPush();
+        const visitorId = orawp.getVisitorId();
+        console.log(" Visitor ID:", visitorId);
 
-              document.getElementById("visitorIdDisplay").textContent = 
-                `Customer ID: ${customerId} | Visitor ID: ${visitorId}`;
-
-              // 👉 Optional: send to your backend
-              // fetch("https://your-server/save", {
-              //   method: "POST",
-              //   headers: { "Content-Type": "application/json" },
-              //   body: JSON.stringify({ customerId, visitorId })
-              // });
-            })
-            .catch(err => console.error("❌ Web Push registration failed:", err));
-        }
-      }, 500);
+        document.getElementById("visitorIdDisplay").textContent =
+          `Customer ID: ${customerId} | Visitor ID: ${visitorId}`;
+      } catch (err) {
+        console.error(" Web Push registration failed:", err);
+      }
     });
-  </script> 
-
-  <body>
-  <h1>Responsys Web Push Demo</h1>
-
-  <input type="text" id="customerId" placeholder="Enter Customer ID" />
-  <button id="registerBtn">Register for Web Push</button>
-
-  <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
-
-  <!-- ✅ Paste the updated script here -->
-</body>
-</html>
-
+  </script>
 </body>
 </html>
