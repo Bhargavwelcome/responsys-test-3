@@ -5,12 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Responsys Web Push Demo</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f8fafc; color: #333; text-align: center; padding: 40px; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #f8fafc; 
+      color: #333; 
+      text-align: center; 
+      padding: 40px; 
+    }
     h1 { color: #0078d7; }
     .visitor { margin-top: 20px; font-size: 1.2em; }
+    input, button { padding: 8px; margin: 10px; font-size: 1em; }
   </style>
 
-  <!-- Responsys Web Push SDK -->
+  <!-- Responsys Web Push SDK (loaded dynamically) -->
   <script>
   window.addEventListener('load', () => {
     setTimeout(() => {
@@ -28,14 +35,56 @@
       document.body.appendChild(s);
     }, 1000); // wait 1 second for SW activation
   });
-</script>
-
+  </script>
 </head>
 <body>
 
   <h1>Responsys Web Push Demo</h1>
+
+  <!-- 👇 Customer ID Input -->
+  <input type="text" id="customerId" placeholder="Enter Customer ID" />
+  <button id="registerBtn">Register for Web Push</button>
+
   <p class="visitor" id="visitorIdDisplay">Visitor ID will appear here after registration.</p>
 
-  
+  <script>
+    // When button is clicked, register visitor and attach Customer ID
+    document.getElementById("registerBtn").addEventListener("click", function () {
+      const customerId = document.getElementById("customerId").value.trim();
+
+      if (!customerId) {
+        alert("Please enter a valid Customer ID!");
+        return;
+      }
+
+      console.log("🧑 Customer ID:", customerId);
+
+      // Wait until the SDK is loaded
+      const checkSDK = setInterval(() => {
+        if (typeof orawp !== "undefined") {
+          clearInterval(checkSDK);
+
+          // Register for Web Push
+          orawp.registerForWebPush()
+            .then(() => {
+              const visitorId = orawp.getVisitorId();
+              console.log("✅ Visitor ID:", visitorId);
+
+              document.getElementById("visitorIdDisplay").textContent = 
+                `Customer ID: ${customerId} | Visitor ID: ${visitorId}`;
+
+              // 👉 Optional: send to your backend
+              // fetch("https://your-server/save", {
+              //   method: "POST",
+              //   headers: { "Content-Type": "application/json" },
+              //   body: JSON.stringify({ customerId, visitorId })
+              // });
+            })
+            .catch(err => console.error("❌ Web Push registration failed:", err));
+        }
+      }, 500);
+    });
+  </script>
+
 </body>
 </html>
